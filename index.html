@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avail Staking Calculator (AVAIL)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #21C55D;
+            --background-color: #F6F7F9;
+            --text-color: #333;
+            --card-background: #FFFFFF;
+            --input-background: #F0F2F5;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --toggle-bg-off: #f5e9e9c6;
+            --toggle-bg-on: #92C5FD;
+            --toggle-switch: #3B81F6;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #DBE9FE;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column; /*change*/
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 8px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0px;
+            right: 4px;
+            bottom: 0;
+            background-color: #D1D5DA;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--toggle-switch);
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: var(--toggle-bg-on);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(14px);
+        }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .toggle-text {
+            font-weight: bold;
+            margin-right: 3ch;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            max-width: 80px;
+            height: auto;
+        }
+
+        .calculator {
+            background-color: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            max-width: 350px; /*change to 350*/
+            width: 100%;
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            margin-top: 0.5rem; /*change*/
+            font-size: 1.8rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input[type="number"], input[type="checkbox"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            background-color: var(--input-background);
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+        }
+        .avail-value {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        button {
+            background-color: #3B81F6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        input[type="number"]::placeholder {
+            color: #999;
+        }
+        input[type="number"]:focus::placeholder {
+            color: transparent;
+        }
+        button:hover {
+            background-color: #2A6CD8;
+        }
+        .results {
+            background-color: var(--input-background);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        .results h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+        .result-value {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        @media (max-width: 480px) {
+            .calculator {
+                border-radius: 0;
+                padding: 1.25rem;
+            }
+        }
+</style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="logo-container">
+            <img src="https://raw.githubusercontent.com/0xrishitripathi/avail-staking-calculator/main/avail_logo.svg" alt="Avail Logo" class="logo">
+        </div>
+        <h1>Avail Staking Calculator (AVAIL)</h1>
+        <div class="input-group">
+            <div class="toggle-label">
+                <span class="toggle-text">Subtract Inflation % From Reward</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="subtractInflation">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="input-group">
+            <label for="annualReward">Annual Reward % (APY)</label>
+            <input type="number" id="annualReward" style="width: 325px;">
+        </div>
+        <div class="input-group">
+            <label for="stakingAmount">Staking Amount</label>
+            <input type="number" id="stakingAmount" placeholder="AVAIL" style="width: 325px;">
+            <span id="stakingAmountUSD" class="avail-value"></span>
+        </div>
+        <br>
+        <button id="calculateButton">Calculate Rewards</button>
+        </br>
+        <div class="results" id="results" style="display: none;">
+            <h3>Estimated Rewards:</h3>
+            <div class="result-item">
+                <span>Daily:</span>
+                <span class="result-value" id="dayReward"></span>
+            </div>
+            <div class="result-item">
+                <span>Weekly:</span>
+                <span class="result-value" id="weekReward"></span>
+            </div>
+            <div class="result-item">
+                <span>Monthly:</span>
+                <span class="result-value" id="monthReward"></span>
+            </div>
+            <div class="result-item">
+                <span>Yearly:</span>
+                <span class="result-value" id="yearReward"></span>
+            </div>
+        </div>
+        <br>
+        <button onclick="window.open('https://staking.avail.tools/', '_blank')">Stake AVAIL</button>
+        </br>
+    </div>
+    <script>
+        let networkData = {};
+let initialCalculation = false;
+
+async function fetchNetworkData() {
+    const response = await fetch('https://avail.api.subscan.io/api/scan/token');
+    const data = await response.json();
+    const { price, total_issuance, locked_balance, inflation } = data.data.detail.AVAIL;
+
+    networkData = {
+        price: parseFloat(price) || 0,
+        totalIssuance: parseFloat(total_issuance) || 0,
+        lockedBalance: parseFloat(locked_balance) || 0,
+        inflation: parseFloat(inflation) || 0
+    };
+
+    if (networkData.totalIssuance === 0) {
+        networkData.totalIssuance = 1;
+    }
+
+    const totalStakingPercentage = (networkData.lockedBalance / networkData.totalIssuance) * 100;
+    const apy = (networkData.inflation / totalStakingPercentage) * 100;
+    document.getElementById('annualReward').value = apy.toFixed(2);
+}
+
+function updateStakingAmountUSD() {
+    const stakingAmount = parseFloat(document.getElementById('stakingAmount').value) || 0;
+    if (isNaN(networkData.price) || networkData.price === 0) {
+        document.getElementById('stakingAmountUSD').textContent = 'Price not available';
+    } else {
+        const usdValue = (stakingAmount * networkData.price).toFixed(2);
+        document.getElementById('stakingAmountUSD').textContent = `≈ $${usdValue} USD`;
+    }
+    if (initialCalculation) {
+        calculateAndDisplay();
+    }
+}
+
+function calculateAndDisplay() {
+    const annualReward = parseFloat(document.getElementById('annualReward').value) / 100;
+    const stakingAmount = parseFloat(document.getElementById('stakingAmount').value) || 0;
+    const subtractInflation = document.getElementById('subtractInflation').checked;
+
+    let effectiveRate = annualReward;
+    if (subtractInflation) {
+        effectiveRate -= networkData.inflation / 100;
+    }
+
+    const yearlyRewardAVAIL = stakingAmount * effectiveRate;
+    const monthlyRewardAVAIL = yearlyRewardAVAIL / 12;
+    const weeklyRewardAVAIL = yearlyRewardAVAIL / 52;
+    const dailyRewardAVAIL = yearlyRewardAVAIL / 365;
+
+    document.getElementById('dayReward').textContent = `${isNaN(dailyRewardAVAIL) ? 0 : dailyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (dailyRewardAVAIL * networkData.price).toFixed(2))})`;
+    document.getElementById('weekReward').textContent = `${isNaN(weeklyRewardAVAIL) ? 0 : weeklyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (weeklyRewardAVAIL * networkData.price).toFixed(2))})`;
+    document.getElementById('monthReward').textContent = `${isNaN(monthlyRewardAVAIL) ? 0 : monthlyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (monthlyRewardAVAIL * networkData.price).toFixed(2))})`;
+    document.getElementById('yearReward').textContent = `${isNaN(yearlyRewardAVAIL) ? 0 : yearlyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (yearlyRewardAVAIL * networkData.price).toFixed(2))})`;
+
+    document.getElementById('results').style.display = 'block';
+}
+
+function initialCalculate() {
+    calculateAndDisplay();
+    initialCalculation = true;
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    document.getElementById('annualReward').addEventListener('input', calculateAndDisplay);
+    document.getElementById('subtractInflation').addEventListener('change', calculateAndDisplay);
+}
+
+window.onload = async function() {
+    await fetchNetworkData();
+    document.getElementById('stakingAmount').addEventListener('input', updateStakingAmountUSD);
+    document.getElementById('calculateButton').addEventListener('click', initialCalculate);
+};
+    </script>
+</body>
+</html>
