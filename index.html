@@ -217,6 +217,13 @@
         </br>
         <div class="results" id="results" style="display: none;">
             <h3>Estimated Rewards:</h3>
+            <div class="toggle-label" style="margin-bottom: 1rem;">
+                <span class="toggle-text">Compound Rewards 💰</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="compoundRewards">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
             <div class="result-item">
                 <span>Daily:</span>
                 <span class="result-value" id="dayReward"></span>
@@ -280,21 +287,32 @@ function calculateAndDisplay() {
     const annualReward = parseFloat(document.getElementById('annualReward').value) / 100;
     const stakingAmount = parseFloat(document.getElementById('stakingAmount').value) || 0;
     const subtractInflation = document.getElementById('subtractInflation').checked;
+    const compoundRewards = document.getElementById('compoundRewards').checked;
 
     let effectiveRate = annualReward;
     if (subtractInflation) {
         effectiveRate -= networkData.inflation / 100;
     }
 
-    const yearlyRewardAVAIL = stakingAmount * effectiveRate;
-    const monthlyRewardAVAIL = yearlyRewardAVAIL / 12;
-    const weeklyRewardAVAIL = yearlyRewardAVAIL / 52;
-    const dailyRewardAVAIL = yearlyRewardAVAIL / 365;
+    let yearlyRewardAVAIL, monthlyRewardAVAIL, weeklyRewardAVAIL, dailyRewardAVAIL;
 
-    document.getElementById('dayReward').textContent = `${isNaN(dailyRewardAVAIL) ? 0 : dailyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (dailyRewardAVAIL * networkData.price).toFixed(2))})`;
-    document.getElementById('weekReward').textContent = `${isNaN(weeklyRewardAVAIL) ? 0 : weeklyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (weeklyRewardAVAIL * networkData.price).toFixed(2))})`;
-    document.getElementById('monthReward').textContent = `${isNaN(monthlyRewardAVAIL) ? 0 : monthlyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (monthlyRewardAVAIL * networkData.price).toFixed(2))})`;
-    document.getElementById('yearReward').textContent = `${isNaN(yearlyRewardAVAIL) ? 0 : yearlyRewardAVAIL.toFixed(4)} AVAIL ($${(isNaN(networkData.price) ? 0 : (yearlyRewardAVAIL * networkData.price).toFixed(2))})`;
+    if (compoundRewards) {
+        const dailyRate = effectiveRate / 365;
+        dailyRewardAVAIL = stakingAmount * (Math.pow(1 + dailyRate, 1) - 1);
+        weeklyRewardAVAIL = stakingAmount * (Math.pow(1 + dailyRate, 7) - 1);
+        monthlyRewardAVAIL = stakingAmount * (Math.pow(1 + dailyRate, 30) - 1);
+        yearlyRewardAVAIL = stakingAmount * (Math.pow(1 + dailyRate, 365) - 1);
+    } else {
+        yearlyRewardAVAIL = stakingAmount * effectiveRate;
+        monthlyRewardAVAIL = yearlyRewardAVAIL / 12;
+        weeklyRewardAVAIL = yearlyRewardAVAIL / 52;
+        dailyRewardAVAIL = yearlyRewardAVAIL / 365;
+    }
+
+    document.getElementById('dayReward').textContent = `${dailyRewardAVAIL.toFixed(4)} AVAIL ($${(dailyRewardAVAIL * networkData.price).toFixed(2)})`;
+    document.getElementById('weekReward').textContent = `${weeklyRewardAVAIL.toFixed(4)} AVAIL ($${(weeklyRewardAVAIL * networkData.price).toFixed(2)})`;
+    document.getElementById('monthReward').textContent = `${monthlyRewardAVAIL.toFixed(4)} AVAIL ($${(monthlyRewardAVAIL * networkData.price).toFixed(2)})`;
+    document.getElementById('yearReward').textContent = `${yearlyRewardAVAIL.toFixed(4)} AVAIL ($${(yearlyRewardAVAIL * networkData.price).toFixed(2)})`;
 
     document.getElementById('results').style.display = 'block';
 }
@@ -308,6 +326,7 @@ function initialCalculate() {
 function setupEventListeners() {
     document.getElementById('annualReward').addEventListener('input', calculateAndDisplay);
     document.getElementById('subtractInflation').addEventListener('change', calculateAndDisplay);
+    document.getElementById('compoundRewards').addEventListener('change', calculateAndDisplay);
 }
 
 window.onload = async function() {
