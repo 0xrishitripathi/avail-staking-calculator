@@ -25,7 +25,7 @@
             margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column; /*change*/
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -96,14 +96,14 @@
             border-radius: 20px;
             padding: 1.5rem;
             box-shadow: var(--box-shadow);
-            max-width: 350px; /*change to 350*/
+            max-width: 350px;
             width: 100%;
         }
         h1 {
             color: var(--primary-color);
             text-align: center;
             margin-bottom: 1.5rem;
-            margin-top: 0.5rem; /*change*/
+            margin-top: 0.5rem;
             font-size: 1.8rem;
         }
         .input-group {
@@ -195,15 +195,6 @@
         </div>
         <h1>Avail Staking Calculator (AVAIL)</h1>
         <div class="input-group">
-            <div class="toggle-label">
-                <span class="toggle-text">Subtract Inflation % From Reward</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="subtractInflation">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-        </div>
-        <div class="input-group">
             <label for="annualReward">Annual Reward % (APY)</label>
             <input type="number" id="annualReward" style="width: 325px;">
         </div>
@@ -291,16 +282,10 @@ function updateStakingAmountUSD() {
 function calculateAndDisplay() {
     const annualReward = parseFloat(document.getElementById('annualReward').value) / 100;
     const stakingAmount = parseFloat(document.getElementById('stakingAmount').value) || 0;
-    const subtractInflation = document.getElementById('subtractInflation').checked;
     const compoundRewards = document.getElementById('compoundRewards').checked;
 
     let effectiveRate = annualReward;
-    if (subtractInflation) {
-        effectiveRate -= networkData.inflation / 100;
-    }
-
     let yearlyRewardAVAIL, monthlyRewardAVAIL, weeklyRewardAVAIL, dailyRewardAVAIL;
-
     if (compoundRewards) {
         const dailyRate = effectiveRate / 365;
         dailyRewardAVAIL = stakingAmount * (Math.pow(1 + dailyRate, 1) - 1);
@@ -330,7 +315,6 @@ function initialCalculate() {
 
 function setupEventListeners() {
     document.getElementById('annualReward').addEventListener('input', calculateAndDisplay);
-    document.getElementById('subtractInflation').addEventListener('change', calculateAndDisplay);
     document.getElementById('compoundRewards').addEventListener('change', calculateAndDisplay);
 }
 
